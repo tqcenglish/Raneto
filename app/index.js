@@ -38,6 +38,7 @@ function initialize (config) {
   var route_page_create     = require('./routes/page.create.route.js')     (config, raneto);
   var route_category_create = require('./routes/category.create.route.js') (config, raneto);
   var route_search          = require('./routes/search.route.js')          (config, raneto);
+  var route_api_search      = require('./routes/search.api.route.js')          (config, raneto);
   var route_home            = require('./routes/home.route.js')            (config, raneto);
   var route_wildcard        = require('./routes/wildcard.route.js')        (config, raneto);
 
@@ -94,6 +95,8 @@ function initialize (config) {
     app.post('/rn-add-category', authenticate, route_category_create);
   }
 
+  // 添加 API 搜索, 返回 JSON 数据
+  app.get('/api/:var(index)?', route_api_search);
   // Router for / and /index with or without search parameter
   app.get('/:var(index)?', route_search, route_home);
   app.get(/^([^.]*)/, route_wildcard);

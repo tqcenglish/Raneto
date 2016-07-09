@@ -55,6 +55,7 @@
     "masonry-layout": "3.3.2",
     "moment": "2.11.2",
     "morgan": "1.6.1",
+    "nodejieba": "^2.2.1",
     "pm2": "1.0.0",
     "raneto-core": "0.5.0",
     "sanitize-filename": "1.5.3",

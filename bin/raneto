@@ -25,7 +25,7 @@ program
   .action(function () {
     pm2.connect(function () {
       pm2.start({
-        script    : path.normalize(__dirname + '/../example/server.js'),
+        script    : path.normalize(__dirname + '/../callcenter/server.js'),
         exec_mode : 'fork',
         instances : 1,
         name      : 'raneto'

@@ -30,3 +30,5 @@ themes/default/public/lib/
 *.pdf
 .DS_Store
 
+# VSCODE
+.vscode
