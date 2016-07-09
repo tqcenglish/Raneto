@@ -24,7 +24,7 @@
   "bin": "./bin/raneto",
   "main": "./app",
   "scripts": {
-    "start": "bin/raneto start",
+    "start": "node callcenter/server.js",
     "start_debug": "DEBUG=raneto node example/server.js",
     "start_win": "set DEBUG=raneto&&node example/server.js",
     "postinstall": "npm update && npm run gulp",
