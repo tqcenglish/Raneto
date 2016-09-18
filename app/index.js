@@ -12,7 +12,8 @@ var moment        = require('moment');
 var extend        = require('extend');
 var hogan         = require('hogan-express');
 var session       = require('express-session');
-var raneto        = require('raneto-core');
+var raneto        = require('./core/lib/raneto.js');
+var passport      = require('passport');
 
 function initialize (config) {
 
@@ -29,7 +30,9 @@ function initialize (config) {
 
   // Load Files
   var authenticate          = require('./middleware/authenticate.js')      (config);
+  var always_authenticate   = require('./middleware/always_authenticate.js')      (config);
   var error_handler         = require('./middleware/error_handler.js')     (config);
+  var oauth2                = require('./middleware/oauth2.js');
   var route_login           = require('./routes/login.route.js')           (config);
   var route_login_page      = require('./routes/login_page.route.js')      (config);
   var route_logout          = require('./routes/logout.route.js');
@@ -41,6 +44,7 @@ function initialize (config) {
   var route_api_search      = require('./routes/search.api.route.js')          (config, raneto);
   var route_home            = require('./routes/home.route.js')            (config, raneto);
   var route_wildcard        = require('./routes/wildcard.route.js')        (config, raneto);
+  var route_sitemap         = require('./routes/sitemap.route.js')         (config, raneto);
 
   // New Express App
   var app = express();
@@ -75,31 +79,57 @@ function initialize (config) {
   app.use('/translations',  express.static(path.normalize(__dirname + '/translations')));
 
   // HTTP Authentication
-  if (config.authentication === true) {
+  if (config.authentication === true || config.authentication_for_edit) {
     app.use(session({
-      secret            : 'changeme',
+      secret            : config.secret,
       name              : 'raneto.sid',
       resave            : false,
       saveUninitialized : false
     }));
+
+    // OAuth2
+    if (config.googleoauth === true) {
+      app.use(passport.initialize());
+      app.use(passport.session());
+      app.use(oauth2.router(config));
+      app.use(oauth2.template);
+    }
+
     app.post('/rn-login', route_login);
+    app.get('/logout', route_logout);
     app.get('/login',     route_login_page);
-    app.get('/logout',    route_logout);
   }
 
   // Online Editor Routes
   if (config.allow_editing === true) {
-    app.post('/rn-edit',         authenticate, route_page_edit);
-    app.post('/rn-delete',       authenticate, route_page_delete);
-    app.post('/rn-add-page',     authenticate, route_page_create);
-    app.post('/rn-add-category', authenticate, route_category_create);
+
+    var middlewareToUse = authenticate;
+    if (config.authentication_for_edit === true) {
+      middlewareToUse = always_authenticate;
+    }
+    if (config.googleoauth === true) {
+      middlewareToUse = oauth2.required;
+    }
+
+    app.post('/rn-edit',         middlewareToUse, route_page_edit);
+    app.post('/rn-delete',       middlewareToUse, route_page_delete);
+    app.post('/rn-add-page',     middlewareToUse, route_page_create);
+    app.post('/rn-add-category', middlewareToUse, route_category_create);
+
   }
 
   // 添加 API 搜索, 返回 JSON 数据
   app.get('/api/:var(index)?', route_api_search);
   // Router for / and /index with or without search parameter
-  app.get('/:var(index)?', route_search, route_home);
-  app.get(/^([^.]*)/, route_wildcard);
+  if (config.googleoauth === true) {
+    app.get('/:var(index)?', oauth2.required, route_search, route_home);
+    app.get(/^([^.]*)/, oauth2.required, route_wildcard);
+  }
+  else {
+    app.get('/sitemap.xml', route_sitemap);
+    app.get('/:var(index)?', route_search, route_home);
+    app.get(/^([^.]*)/, route_wildcard);
+  }
 
   // Handle Errors
   app.use(error_handler);

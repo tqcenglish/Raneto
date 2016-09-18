@@ -32,3 +32,4 @@ themes/default/public/lib/
 
 # VSCODE
 .vscode
+.idea

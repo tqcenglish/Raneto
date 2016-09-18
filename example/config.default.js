@@ -48,14 +48,34 @@ var config = {
   analytics: '',
 
   // Set to true to enable the web editor
-  allow_editing : false,
+  allow_editing : true,
 
   // Set to true to enable HTTP Basic Authentication
-  authentication : false,
-  credentials    : {
-    username : 'admin',
-    password : 'password'
+  authentication : true,
+
+  // If editing is enabled, set this to true to only authenticate for editing, not for viewing
+  authentication_for_edit: true,
+
+  // Google OAuth
+  googleoauth: false,
+  oauth2 : {
+    client_id: 'GOOGLE_CLIENT_ID',
+    client_secret: 'GOOGLE_CLIENT_SECRET',
+    callback: 'http://localhost:3000/auth/google/callback',
+    hostedDomain: 'google.com'
   },
+  secret: 'someCoolSecretRightHere',
+
+  credentials    : [
+    {
+      username : 'admin',
+      password : 'password'
+    },
+    {
+      username : 'admin2',
+      password : 'password'
+    }
+  ],
 
   locale: 'zh',
 
@@ -66,7 +86,20 @@ var config = {
   home_meta : {
     //title       : 'Custom Home Title',
     //description : 'Custom Home Description'
-  }
+  },
+
+  //variables: [
+  //  {
+  //    name: 'test_variable',
+  //    content: 'test variable'
+  //  },
+  //  {
+  //    name: 'test_variable_2',
+  //    content: 'test variable 2'
+  //  }
+  //]
+
+  table_of_contents: false
 
 };
 

@@ -6,6 +6,7 @@ var path                           = require('path');
 var fs                             = require('fs');
 var moment                         = require('moment');
 var marked                         = require('marked');
+var toc                            = require('markdown-toc');
 var remove_image_content_directory = require('../functions/remove_image_content_directory.js');
 
 function route_wildcard (config, raneto) {
@@ -58,7 +59,7 @@ function route_wildcard (config, raneto) {
         if (file_path_orig.indexOf(suffix, file_path_orig.length - suffix.length) !== -1) {
 
           // Edit Page
-          if (config.authentication === true && !req.session.loggedIn) {
+          if ((config.authentication || config.authentication_for_edit) && !req.session.loggedIn) {
             res.redirect('/login');
             return;
           }
@@ -66,6 +67,14 @@ function route_wildcard (config, raneto) {
           content = content;
 
         } else {
+
+          // Render Table of Contents
+          if (config.table_of_contents) {
+            var tableOfContents = toc(content);
+            if (tableOfContents.content) {
+              content = '#### Table of Contents\n' + tableOfContents.content + '\n\n' + content;
+            }
+          }
 
           // Render Markdown
           marked.setOptions({
@@ -77,10 +86,10 @@ function route_wildcard (config, raneto) {
 
         var page_list = remove_image_content_directory(config, raneto.getPages(slug));
 
-        var loggedIn = (config.authentication ? req.session.loggedIn : false);
+        var loggedIn = ((config.authentication || config.authentication_for_edit) ? req.session.loggedIn : false);
 
         var canEdit = false;
-        if (config.authentication) {
+        if (config.authentication || config.authentication_for_edit) {
           canEdit = loggedIn && config.allow_editing;
         } else {
           canEdit = config.allow_editing;
@@ -95,6 +104,7 @@ function route_wildcard (config, raneto) {
           last_modified : moment(stat.mtime).format('Do MMM YYYY'),
           lang          : config.lang,
           loggedIn      : loggedIn,
+          username      : (config.authentication ? req.session.username : null),
           canEdit       : canEdit
         });
 
