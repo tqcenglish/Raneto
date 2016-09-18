@@ -1,5 +1,6 @@
 'use strict';
 
+var path = require('path');
 var config = {
 
   // Your site title (format: page_title - site_title)
@@ -27,16 +28,16 @@ var config = {
   category_sort: true,
 
   // Which Theme to Use?
-  theme_dir: __dirname + '/../themes/',
+  theme_dir: path.join(__dirname, '/../themes/'),
   theme_name: 'default',
 
   // Specify the path of your content folder where all your '.md' files are located
   // Fix: Needs trailing slash for now!
   // Fix: Cannot be an absolute path
-  content_dir: __dirname + '/content/',
+  content_dir: path.join(__dirname, '/content/'),
 
   // Where is the public directory or document root?
-  public_dir: __dirname + '/../themes/default/public/',
+  public_dir: path.join(__dirname, '/../themes/default/public/'),
 
   // The base URL of your images folder,
   // Relative to config.public_dir
@@ -63,8 +64,8 @@ var config = {
 
   // Edit Home Page title, description, etc.
   home_meta: {
-    //title       : 'Custom Home Title',
-    //description : 'Custom Home Description'
+    // title       : 'Custom Home Title',
+    // description : 'Custom Home Description'
   }
 
 };
